@@ -26,7 +26,8 @@ For quick LC alignment diagrams you can use `lcd()` and specify the
 bottom and top anlgle arguments. Under the hood, this is creating an
 `angle_function` (the third argument to `lcd()`) that varies the angle
 linearly from the bottom of the diagram to the top of the diagram. Note
-that all themeing can be removed by setting `themeing = FALSE`
+that all themeing can be removed by setting `themeing = FALSE`. Setting
+a seed ensures that the same diagram can be recreated.
 
 ``` r
 lcd(45, -45, seed=1)
@@ -40,11 +41,11 @@ lcd(45, -45, seed=1, themeing = FALSE)
 
 ![](man/figures/README-unnamed-chunk-3-2.png)<!-- -->
 
-The vertical y-scale of the plotting area is always from 0 to 1 (so the
-plotting area always has a height of 1). The width of the diagram can be
-varied by specifying the `diagram_aspect` argument which is defined as
-width/length. `lcd()` returns a ggplot2 object, so further layers cab be
-added as normal
+The vertical y-scale of the plotting area always ranges from 0 to 1 (so
+the plotting area always has a height of 1). The width of the diagram
+can be varied by specifying the `diagram_aspect` argument which is
+defined as width/length. `lcd()` returns a ggplot2 object, so further
+layers cab be added as normal
 
 ``` r
 lcd(0, 90) + 

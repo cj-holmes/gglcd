@@ -106,8 +106,7 @@ a molecule at that height}
 
 }
 \description{
-LCD is a wrapper for gglcd::geom_lc() gglcd::and stat_lc(). It produces simple LC alignmnet diagrams
-where the molecule angle varies linearly
+LCD is a wrapper for gglcd::geom_lc() gglcd::and stat_lc(). It produces simple LC alignmnet diagrams using ggplot2
 }
 \examples{
 lcd(0, 360)

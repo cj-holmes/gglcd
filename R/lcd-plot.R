@@ -1,7 +1,6 @@
 #' Liquid Crystal Diagram (LCD) plot
 #'
-#' LCD is a wrapper for gglcd::geom_lc() gglcd::and stat_lc(). It produces simple LC alignmnet diagrams
-#' where the molecule angle varies linearly
+#' LCD is a wrapper for gglcd::geom_lc() gglcd::and stat_lc(). It produces simple LC alignmnet diagrams using ggplot2
 #'
 #' @param angle_b Angle of molecules at bottom of plot (degrees, measured anti-clockwise from +ve x)
 #' @param angle_t Angle of molecules at top of plot (degrees, measured anti-clockwise from +ve x)
