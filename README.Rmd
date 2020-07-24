@@ -15,14 +15,14 @@ knitr::opts_chunk$set(
 
 # gglcd <img src="data-raw/hex-logo/gglcd-hex.png" align="right" height="139"/>
 
-**`gglcd` is a work in progress - use at your own risk!**
+**`gglcd` is a work in progress - it may not be working properly, so use it at your own risk!**
 
 The goal of `gglcd` is to programmatically create schematic liquid crystal (LC) alignment diagrams. 
 
 `gglcd` has two features:
 
 *  A ggplot2 geom and stat (`geom_lc()` and `stat_lc()`) for fine control
-*  A convenient wrapper function `lcd()` for simple plots with linear changes in molecule angle
+*  A convenient wrapper function `lcd()` for simple alignment diagrams
 
 ## Example use
 ```{r message=FALSE, warning=FALSE}
@@ -30,14 +30,18 @@ library(gglcd)
 library(tidyverse)
 ```
 
-For quick LC alignment diagrams you can use `lcd()` and specify the bottom and top theta anlgle arguments
-```{r fig.width=4, fig.height=4}
-lcd(45, -45, 1000)
+For quick LC alignment diagrams you can use `lcd()` and specify the bottom and top anlgle arguments. Under the hood, this is creating an `angle_function` (the third argument to `lcd()`) that varies the angle linearly from the bottom of the diagram to the top of the diagram. Note that all themeing can be removed by setting `themeing = FALSE`
+
+```{r fig.width=5, fig.height=5}
+lcd(45, -45, seed=1)
+lcd(45, -45, seed=1, themeing = FALSE)
 ```
 
-`lcd` returns a ggplot2 object, so further layers cab be added as normal
-```{r fig.width=4, fig.height=4}
-lcd(0, 90) + labs(title = "Title", subtitle = "Subtitle")
+The vertical y-scale of the plotting area is always from 0 to 1 (so the plotting area always has a height of 1). The width of the diagram can be varied by specifying the `diagram_aspect` argument which is defined as width/length. `lcd()` returns a ggplot2 object, so further layers cab be added as normal
+```{r fig.width=5, fig.height=5}
+lcd(0, 90) + 
+  geom_hline(yintercept = 0.5, col="orange", size=2)+
+  labs(title = "Title", subtitle = "Subtitle")
 ```
 
 There are a whole load of other arguments to `lcd()` to control the format of the output
@@ -47,9 +51,25 @@ args(lcd)
 
 For example, the aspect of the diagram can be changed, bounding surfaces applied and colour elements edited.
 ```{r fig.width=8, fig.height=4}
-lcd(0, 360, diagram_aspect = 2, surface_b = 0.05, surface_t = 0.05, bg_fill = "aquamarine", lc_fill="white")
+lcd(0, 360, 
+    diagram_aspect = 2, 
+    surface_b = 0.1, surface_t = 0.05, 
+    bg_fill = "aquamarine", lc_fill="white")
 ```
 
+Non-linear changes in angle can also be specified by the `angle_function` argument. Here I create a sinusoidally varying angle 
+```{r fig.width=5, fig.height=5}
+x <- seq(0,1,l=1000)
+y <- sin(seq(0,2*pi,l=1000))*90
+af <- approxfun(x,y, rule=2)
+
+lcd(angle_function = af, seed=1)
+```
+
+The angle function can also be visualised over the diagram
+```{r}
+lcd(angle_function = af, seed=1, show_function = TRUE)
+```
 
 ## Geoms and stats
 The `lcd()` function described above is a wrapper aronud `geom_lc()` and `stat_lc()`. These functions can be used as normal with a call to `ggplot()` for full control over the diagram creation, including the ability to make additional aesthetic mappings.
@@ -58,7 +78,7 @@ A particularly useful argument to `lcd()` is `return_df`. If set to `TRUE` (defa
 
 This example also makes use of the ability to map non-required aesthetics. The fill is mapped to angle.
 ```{r}
-lcd(-180, 180, n_mol = 1000, return_df = T, seed=1) %>%
+lcd(-180, 180, return_df = T, seed=1) %>%
   print() %>% # view dataframe
   ggplot(aes(x, y, angle=angle, length=length, width=width))+
   geom_lc(aes(fill=angle))+
@@ -66,21 +86,24 @@ lcd(-180, 180, n_mol = 1000, return_df = T, seed=1) %>%
   scale_fill_gradient2()
 ```
 
-As length is a required aesthetic for `geom_lc()`, it can be varied per LC molecule. Here I have varied the length for the 'twist' category, approximating the projection of the rotated molecule onto the x-y plane.
+As length is a required aesthetic for `geom_lc()`, it can be varied per LC molecule. Here I have created a function that returns the length as a function of the position in y for the 'twist' category (approximating the projection of the rotated molecule onto the x-y plane). This is then mutated onto the dataframe before plotting.
 ```{r fig.width=10}
 # Define inputs
-n <- 1000
 lc_length <- 0.05
 lc_width <- lc_length/3
 
 # Approximate the length projection on to the x-y plane
-twist_proj <- cos(seq(0, pi/2, l=n))*lc_length
-twist_proj[twist_proj < lc_width] <- lc_width # Do not molecule lengths to become smaller than widths
+twist_proj <- approxfun(seq(0,1,l=1000), cos(seq(0, pi/2, l=1000))*lc_length)
 
 bind_rows(
-  lcd(50, -50, n, lc_length=lc_length, lc_width=lc_width, return_df = TRUE) %>% mutate(label = "Splay"),
-  lcd(50, 130, n, lc_length=lc_length, lc_width=lc_width, return_df = TRUE) %>% mutate(label = "Bend"),
-  lcd(0, 0, n, lc_length = twist_proj, lc_width=lc_width, return_df = TRUE) %>% mutate(label = "Twist")) %>% 
+  lcd(50, -50, lc_length=lc_length, lc_width=lc_width, return_df = TRUE) %>% mutate(label = "Splay"),
+  lcd(50, 130, lc_length=lc_length, lc_width=lc_width, return_df = TRUE) %>% mutate(label = "Bend"),
+  lcd(0, 0, lc_length = lc_length, lc_width=lc_width, return_df = TRUE) %>% 
+    mutate(length = twist_proj(y),
+           length = case_when(length < lc_width ~ lc_width,
+                              TRUE ~ length),
+           label = "Twist")
+  ) %>% 
   ggplot(aes(x, y, angle=angle, length=length, width=width))+
   geom_lc()+
   facet_wrap(~label)+
@@ -115,7 +138,7 @@ depth <- 27.3e-6
 A <- 45
 pgx <- seq(0, -13e+4, l=100)
 
-n <- 35
+n <- 45
 lc_length <- 0.05
 
 lc <- lc_switching_sequence(nz = n, 
@@ -135,6 +158,9 @@ lc <- lc_switching_sequence(nz = n,
                             ntol=1e-6,
                             ttol=1e-5)
 
+
+
+
 df <- 
   crossing(x = seq(0,1,l=n), y=seq(0,1,l=n)) %>%
   mutate(xj = x + runif(n^2, -lc_length/2, lc_length/2),
@@ -142,7 +168,7 @@ df <-
 
 anim_df <-
   purrr::map_dfr(seq(1, 100, by=1), function(b){
-    af <- approxfun(x = seq(0,1,l=n), y = lc$tilt[,b]*(180/pi) + 90)
+    af <- approxfun(x = seq(0,1,l=n), y = lc$tilt[,b]*(180/pi) + 90, rule = 2)
     df %>% mutate(angle = af(yj)) %>% mutate(step=as.character(b))
     })
 
@@ -167,9 +193,15 @@ crossing(x = seq(0,1,l=n), y=seq(0,1,l=n)) %>%
   mutate(xj = x + runif(n^2, -lc_length/2, lc_length/2),
          yj = y + runif(n^2, -lc_length/2, lc_length/2)) %>% 
   mutate(length=lc_length, width=0.05/4, angle=seq(0, 360, l=n^2)) %>% 
-  ggplot(aes(xj, yj, angle=angle, width=width, length=length, fill=angle))+
+  ggplot(aes(x, y, angle=angle, width=width, length=length, fill=angle))+
   geom_lc()+
   # geom_point(aes(x, y), col=2)+
   coord_fixed()+
   scale_fill_gradient2(midpoint = 180, breaks=seq(0,360,by=90))
+
+
+
+
+
+lcd(0, 90, 1000, return_df = T)
 ```

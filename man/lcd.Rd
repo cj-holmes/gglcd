@@ -5,12 +5,16 @@
 \title{Liquid Crystal Diagram (LCD) plot}
 \usage{
 lcd(
-  theta_b = 0,
-  theta_t = 90,
-  n_mol = 1000,
-  theta_n = 0,
+  angle_b = 0,
+  angle_t = 90,
+  angle_function = NULL,
+  angle_n = 0,
+  n_mol_x = 30,
+  n_mol_y = 30,
+  x_jitter = 0.4,
+  y_jitter = 0.4,
   lc_length = 0.05,
-  lc_width = 0.05/3.5,
+  lc_width = 0.016,
   diagram_aspect = 1,
   seed = NULL,
   surface_b = NULL,
@@ -19,6 +23,7 @@ lcd(
   ellipse_res = 35,
   return_df = FALSE,
   themeing = TRUE,
+  show_function = FALSE,
   lc_lwd = 0.2,
   surface_b_lwd = 0.2,
   surface_t_lwd = 0.2,
@@ -34,13 +39,22 @@ lcd(
 )
 }
 \arguments{
-\item{theta_b}{Theta (degrees) at bottom of diagram}
+\item{angle_b}{Angle of molecules at bottom of plot (degrees, measured anti-clockwise from +ve x)}
 
-\item{theta_t}{Theta (degrees) at top of diagram}
+\item{angle_t}{Angle of molecules at top of plot (degrees, measured anti-clockwise from +ve x)}
 
-\item{n_mol}{Number of molecules for diagram}
+\item{angle_function}{A function that takes a value of the image height (from 0 to 1) and returns the angle of
+a molecule at that height}
 
-\item{theta_n}{Noise angle (degrees). Random noise from -theta_n : theta_n is added to each molecule}
+\item{angle_n}{Noise to be added to angles (a random angle from -angle_n:angle_n is added to each molecule)}
+
+\item{n_mol_x}{Number of molecules in x (default is 30)}
+
+\item{n_mol_y}{Number of molecules in y (default is 30)}
+
+\item{x_jitter}{Jitter to apply to molecule centres in x. Value is applied as a proportion of lc_length (default = 0.4)}
+
+\item{y_jitter}{Jitter to apply to molecule centres in y. Value is applied as a proportion of lc_length (default = 0.4)}
 
 \item{lc_length}{Length of LC molecule (vector of length 1 or n_mol)}
 
@@ -61,6 +75,8 @@ lcd(
 \item{return_df}{Should just the dataframe be returned (Default: FALSE)}
 
 \item{themeing}{Should themeing be applied (Default: TRUE)}
+
+\item{show_function}{Logical. Print functional form of angle_function over diagram}
 
 \item{lc_lwd}{Linewidth of LC molecules}
 
