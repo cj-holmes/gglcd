@@ -56,9 +56,9 @@ a molecule at that height}
 
 \item{y_jitter}{Jitter to apply to molecule centres in y. Value is applied as a proportion of lc_length (default = 0.4)}
 
-\item{lc_length}{Length of LC molecule (vector of length 1 or n_mol)}
+\item{lc_length}{Length of LC molecule (vector of length 1 or (n_mol_x * n_mol_y))}
 
-\item{lc_width}{Width of LC molecule (vector of length 1 or n_mol)}
+\item{lc_width}{Width of LC molecule (vector of length 1 or (n_mol_x * n_mol_y))}
 
 \item{diagram_aspect}{Aspect ratio of diagram (length / width)}
 
@@ -106,7 +106,7 @@ a molecule at that height}
 
 }
 \description{
-LCD is a wrapper for gglcd::geom_lc() gglcd::and stat_lc(). It produces simple LC alignmnet diagrams using ggplot2
+\code{lcd()} is a wrapper for \code{gglcd::geom_lc()}. It produces simple LC alignmnet diagrams using ggplot2.
 }
 \examples{
 lcd(0, 360)

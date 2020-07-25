@@ -1,6 +1,6 @@
 #' Liquid Crystal Diagram (LCD) plot
 #'
-#' LCD is a wrapper for gglcd::geom_lc() gglcd::and stat_lc(). It produces simple LC alignmnet diagrams using ggplot2
+#' \code{lcd()} is a wrapper for \code{gglcd::geom_lc()}. It produces simple LC alignmnet diagrams using ggplot2.
 #'
 #' @param angle_b Angle of molecules at bottom of plot (degrees, measured anti-clockwise from +ve x)
 #' @param angle_t Angle of molecules at top of plot (degrees, measured anti-clockwise from +ve x)
@@ -12,8 +12,8 @@
 #' @param x_jitter Jitter to apply to molecule centres in x. Value is applied as a proportion of lc_length (default = 0.4)
 #' @param y_jitter Jitter to apply to molecule centres in y. Value is applied as a proportion of lc_length (default = 0.4)
 #' @param show_function Logical. Print functional form of angle_function over diagram
-#' @param lc_length Length of LC molecule (vector of length 1 or n_mol)
-#' @param lc_width Width of LC molecule (vector of length 1 or n_mol)
+#' @param lc_length Length of LC molecule (vector of length 1 or (n_mol_x * n_mol_y))
+#' @param lc_width Width of LC molecule (vector of length 1 or (n_mol_x * n_mol_y))
 #' @param lc_shape One of "rectangle" (default) or "ellipse"
 #' @param diagram_aspect Aspect ratio of diagram (length / width)
 #' @param seed Random seed for reproducability
@@ -34,7 +34,6 @@
 #' @param surface_t_lwd Linewidth of top surface
 #' @param ellipse_res Resolution of ellipse polygons
 #' @param themeing Should themeing be applied (Default: TRUE)
-
 #'
 #' @return
 #' @export
@@ -104,6 +103,11 @@ lcd <- function(angle_b = 0,
                 rule = 2)
   }
 
+  # Create a dataframe of the molecule x-y central positions
+  # Jitter the x and y positions
+  # Arrange by y (this will make a difference for length and width if supplied with a length of n_mol_x * n_mol_y)
+  # Add LC width and length columns
+  # Apply angle function and add noise angle
   t <-
     tidyr::crossing(x = seq(0, w, l=n_mol_x),
                     y = seq(0, h, l=n_mol_y)) %>%
@@ -114,8 +118,10 @@ lcd <- function(angle_b = 0,
                     length = lc_length) %>%
       dplyr::mutate(angle = angle_function(y) + runif(n_mol_x * n_mol_y, angle_n*-1, angle_n))
 
+  # Just return the dataframe if wanted
   if(return_df) return(t)
 
+  # Generate base plot
   p <-
     ggplot2::ggplot(t)+
     geom_lc(ggplot2::aes(x, y,
@@ -140,7 +146,7 @@ lcd <- function(angle_b = 0,
                         fill=surface_t_fill, col=surface_t_col, size = surface_t_lwd)
   }
 
-
+  # Plot angle function
   if(show_function){
     normalised_angle_values <-
       tibble::tibble(x = seq(0, h, l=1000),
@@ -156,6 +162,7 @@ lcd <- function(angle_b = 0,
 
   }
 
+  # Apply themeing (which has coord_fixed() in it)
   if(themeing){
     p <-
       p +
