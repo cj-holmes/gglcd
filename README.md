@@ -92,18 +92,10 @@ x <- seq(0,1,l=1000)
 y <- sin(seq(0,2*pi,l=1000))*90
 af <- approxfun(x,y, rule=2)
 
-lcd(angle_function = af, seed=1)
-```
-
-![](man/figures/README-unnamed-chunk-7-1.png)<!-- -->
-
-The angle function can also be visualised over the diagram
-
-``` r
 lcd(angle_function = af, seed=1, show_function = TRUE)
 ```
 
-![](man/figures/README-unnamed-chunk-8-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-7-1.png)<!-- -->
 
 ## Geoms and stats
 
@@ -144,7 +136,7 @@ lcd(-180, 180, return_df = T, seed=1) %>%
 #> # ... with 890 more rows
 ```
 
-![](man/figures/README-unnamed-chunk-9-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-8-1.png)<!-- -->
 
 As length is a required aesthetic for `geom_lc()`, it can be varied per
 LC molecule. Here I have created a function that returns the length as a
@@ -176,7 +168,7 @@ bind_rows(
   theme(legend.position = "none")
 ```
 
-![](man/figures/README-unnamed-chunk-10-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-9-1.png)<!-- -->
 
 ### Using ellipse polygons
 
@@ -196,10 +188,10 @@ tibble(x=0.5, y=0.5, angle=45, length=1, width=1/4) %>%
   coord_fixed()
 ```
 
-![](man/figures/README-unnamed-chunk-11-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-10-1.png)<!-- -->
 
 ## Animations
 
 With the super useful `gganimate` package it is also possible to create
 custom animations using `geom_lc()`.
-![](man/figures/README-unnamed-chunk-12-1.gif)<!-- -->
+![](man/figures/README-unnamed-chunk-11-1.gif)<!-- -->

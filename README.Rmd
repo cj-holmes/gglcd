@@ -63,11 +63,6 @@ x <- seq(0,1,l=1000)
 y <- sin(seq(0,2*pi,l=1000))*90
 af <- approxfun(x,y, rule=2)
 
-lcd(angle_function = af, seed=1)
-```
-
-The angle function can also be visualised over the diagram
-```{r}
 lcd(angle_function = af, seed=1, show_function = TRUE)
 ```
 
