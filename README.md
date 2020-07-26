@@ -86,13 +86,14 @@ lcd(0, 360,
 
 Non-linear changes in angle can also be specified by the
 `angle_function` argument. Here I create a sinusoidally varying angle
+between 0.2 and 0.8 (the vertical scale of the plot is always 0 to 1).
 
 ``` r
-x <- seq(0,1,l=1000)
+x <- seq(0.2,0.8,l=1000)
 y <- sin(seq(0,2*pi,l=1000))*90
 af <- approxfun(x,y, rule=2)
 
-lcd(angle_function = af, seed=1, show_function = TRUE)
+lcd(angle_function = af, seed=1, show_function = TRUE, angle_n=2)
 ```
 
 ![](man/figures/README-unnamed-chunk-7-1.png)<!-- -->

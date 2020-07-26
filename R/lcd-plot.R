@@ -148,19 +148,28 @@ lcd <- function(angle_b = 0,
 
   # Plot angle function
   if(show_function){
+
     normalised_angle_values <-
       tibble::tibble(x = seq(0, h, l=1000),
-                     y = angle_function(x),
-                     y_norm = ((y - min(y))/max(y - min(y)))*w)
-
-    # print(normalised_angle_values)
+                     y = angle_function(x)) %>%
+      dplyr::mutate(y_min = y - angle_n,
+                    y_max = y + angle_n,
+                    a = min(y),
+                    b = max(y - min(y)),
+                    y_norm = ((y - a)/b) * w,
+                    y_min_norm = ((y_min - a)/b) * w,
+                    y_max_norm = ((y_max - a)/b) * w
+                    )
 
     p <-
       p +
-      geom_line(data = normalised_angle_values,
-                aes(x=y_norm, y=x), orientation = "y", col=2, size=1)
-
-  }
+      ggplot2::geom_line(data = normalised_angle_values,
+                         ggplot2::aes(x=y_min_norm, y=x), orientation = "y", col=2, size=1, lty=2)+
+      ggplot2::geom_line(data = normalised_angle_values,
+                       ggplot2::aes(x=y_max_norm, y=x), orientation = "y", col=2, size=1, lty=2)+
+      ggplot2::geom_line(data = normalised_angle_values,
+                         ggplot2::aes(x=y_norm, y=x), orientation = "y", col=2, size=1, lty=1)
+    }
 
   # Apply themeing (which has coord_fixed() in it)
   if(themeing){
